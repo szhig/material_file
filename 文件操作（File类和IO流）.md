@@ -281,7 +281,7 @@ public class FileSearch {
 */
 ```
 
-#### 1.字节输出流
+#### 1.字节输出流(OutputStream)
 
 ```Java
 /*******输出流：OutputStream*********/
@@ -356,7 +356,7 @@ append：追加写开关！
 
 ```
 
-#### 2.字节输入流
+#### 2.字节输入流(InputStream)
 
 ```java
 /*******输入流：InputStream*********/
@@ -381,8 +381,157 @@ append：追加写开关！
 构造方法所做的事：
 	1.会创建一个FileInputStream对象
 	2.会将FileInputStream对象指向传递过来的文件
+	
+	
+注意：1.当读取到文件末尾时会返回-1
+
+
+read(byte[] b)：b为读取到的字节，其长度则为所需要读取的字节个数，且返回的值为一次读取到的有效个数
+read()：无参，返回值为所读取到的字节
 **/
 
+package com.company.FileInput;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class FileInput {
+    public static void main(String[] args) throws IOException {
+        FileInputStream fis = new FileInputStream(new File("b.txt"));
+//        Integer name = fis.read();
+//        System.out.println(name);
+
+        Integer name;
+        byte [] bytes = new byte[20];
+//        while((name = fis.read(bytes)) != -1){
+//            System.out.println(name);
+//        }
+        name = fis.read(bytes);
+        System.out.println(Arrays.toString(bytes));
+		System.out.println(new String(bytes));				//将字节数组转为字符串
+
+        name = fis.read(bytes);
+        System.out.println(Arrays.toString(bytes));
+        System.out.println(name);
+        fis.close();
+    }
+}
+/**读取：
+Java程序----》JVM----》OS----》OS调用读取文件的方法----》读取文件
+**/
+```
+
+#### 3.字符输入流(Reader)
+
+```java
+/**
+*注意：在使用字节流读取文件时会用中文乱码问题，而使用字符流则不会
+**/
+
+/**
+*Reader：是一个抽象类，定义了所有子类的共性方法
+    read()
+    	读一个字符
+    read(char[] cbuf)
+		将字符读入数组。
+	read(char[] cbuf, int off, int len)
+		将字符读入数组的一部分。
+	close()
+		关闭流并释放与之相关联的任何系统资源。
+*/
+/**子类：FileReader
+*构造方法：
+	FileReader(File file)
+		创建一个新的 FileReader ，给出 File读取。
+	FileReader(String fileName)
+		创建一个新的 FileReader ，给定要读取的文件的名称。
+*/
+package com.company.FileReader;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class MyFileReader {
+    public static void main(String[] args) throws IOException {
+        File file = new File("b.txt");
+        FileReader reader = new FileReader("a.txt");
+
+        int len;
+        char [] chars = new char[1024];
+        while ((len = reader.read(chars)) != -1) {
+            System.out.println(new String(chars,0,len));
+        }
+
+        reader.close();
+    }
+}
+
+
+```
+
+#### 4.字符输出流(Writer)
+
+```java
+/**Writer:抽象类，字符输出流的超类，定义了所有子类的共性方法
+*方法：
+	close()
+		关闭流，先刷新。
+	write(int c)
+		写一个字符
+	write(char[] cbuf, int off, int len)
+		写入字符数组的一部分。
+	write(char[] cbuf)
+		写入一个字符数组。
+	write(String str)
+		写一个字符串
+	write(String str, int off, int len)
+		写一个字符串的一部分。
+	flush()
+		刷新流。
+*/
+
+/**FileWriter：文件字符输出流，将内存中地字符写入到文件中
+*构造方法：
+	FileWriter(File file)
+		给一个File对象构造一个FileWriter对象。
+	FileWriter(File file, boolean append)
+		给一个File对象构造一个FileWriter对象。
+	FileWriter(String fileName)
+		构造一个给定文件名的FileWriter对象。
+	FileWriter(String fileName, boolean append)
+		构造一个FileWriter对象，给出一个带有布尔值的文件名，表示是否附加写入的数据。
+*/
+
+/**字符输出流的使用步骤：
+*1.创建FileWriter对象，构造方法绑定要写入数据的目的地
+*2.使用FileWriter对象的write方法，把数据写入到数据缓冲区去（字符转换为字节的过程）
+*3.使用FileWrite对象的flush方法，把内存缓冲区的数据刷新的文件中去
+*4.释放资源(会先把内存缓存区的数据刷新到文件中去)
+*/
+package com.company.MyFileWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class MyFileWriter {
+    public static void main(String[] args) throws IOException {
+        File file = new File("c.txt");
+        FileWriter writer = new FileWriter(file,true);
+
+        String c = "你是傻逼";
+        writer.write(c);
+
+        writer.close();
+    }
+}
+/**
+*close方法：刷新缓冲区，然后通知系统释放资源，流就不可以再使用了
+*flush方法：刷新缓冲区，流还可以继续使用
+*/
 
 ```
 
