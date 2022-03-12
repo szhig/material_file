@@ -1,5 +1,7 @@
 ## 文件操作（File类和IO流）
 
+javaAPI文档地址：https://www.matools.com/api/java8
+
 ### 一、FIle类
 
 #### 1.静态变量
@@ -1044,6 +1046,299 @@ public class Transform {
         OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream("a.txt"),"GB2312");
         osw.write("我嫩爹");
         osw.close();
+    }
+}
+```
+
+### 五、序列化与反序列化
+
+```java
+/**序列化与反序列化
+ * 序列化：简单来说就是将一个对象存储到文件中去
+ * 反序列化：反序列化则是将文件中的对象读取出来
+ * */
+
+/**
+* 对象的序列化流：ObjectOutputStream
+* 对象的反序列化流：ObjectInputStream
+*/
+
+```
+
+#### 1.序列化(ObjectOutputStream)
+
+```java
+/**java.io.ObjectOutputStream**/
+/**
+ * java.io.ObjectOutputStream 继承自 OutputStream
+ * 同样的，继承了OutputStream的共性方法
+ *
+ * 作用：把对象以流的方式写入到文件中去
+ *
+ * 构造方法：
+ * 		ObjectOutputStream()
+ * 			为完全重新实现ObjectOutputStream的子类提供一种方法，不必分配刚刚被ObjectOutputStream实现使用的私有数据。
+ * 		ObjectOutputStream(OutputStream out)
+ * 			创建一个写入指定的OutputStream的ObjectOutputStream。
+ *
+ * 	参数：
+ * 		OutputStream out：一个字节输出流对象
+ *
+ * 	特有方法：
+ * 		writeObject(Object obj)
+ * 			将指定的对象写入ObjectOutputStream。
+ * */
+
+/**
+ * public class NotSerializableException
+ * extends ObjectStreamException
+ * 抛出一个实例需要一个Serializable接口。 序列化运行时或实例的类可能会抛出此异常。 参数应该是类的名称。
+ * */
+
+/**
+ * public interface Serializable
+ * 类的序列化由实现java.io.Serializable接口的类启用。
+ * */
+package com.company.object;
+
+import com.company.model.Person;
+
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+
+public class FileObjectOutputStream {
+    public static void main(String[] args) throws Exception {
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("g.txt"));
+        oos.writeObject(new Person("小美女",18));
+        oos.close();
+    }
+}
+
+```
+
+
+
+#### 2.反序列化(ObjectInputStream)
+
+```java
+/**java.io.ObjectInputStream**/
+/**
+ * java.io.ObjectInputStream 继承自 InputStream
+ * 同样的，继承了InputStream的共性方法
+ *
+ * 作用：把对象以流的方式从文件中读取出来
+ *
+ * 构造方法：
+ * 		ObjectInputStream(InputStream in)
+ * 			创建从指定的InputStream读取的ObjectInputStream。
+ *
+ * 	参数：
+ * 		InputStream in：一个字节输入流对象
+ *
+ * 	特有方法：
+ * 		readObject()
+ *			从ObjectInputStream读取一个对象。
+ * */
+
+/**
+ * public class NotSerializableException
+ * extends ObjectStreamException
+ * 抛出一个实例需要一个Serializable接口。 序列化运行时或实例的类可能会抛出此异常。 参数应该是类的名称。
+ * */
+
+/**
+ * public interface Serializable
+ * 类的序列化由实现java.io.Serializable接口的类启用。
+ * */
+
+/**反序列化的前提：
+ *  1.实体类必须实现Serializable接口
+ *  2.必须存在类对应的class文件
+ * */
+package com.company.object;
+
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+
+public class FileObjectInputStream {
+    public static void main(String[] args) throws Exception{
+        FileInputStream fis = new FileInputStream("g.txt");
+        InputStreamReader isr = new InputStreamReader(fis,"GBK");
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        Object obj = ois.readObject();
+        System.out.println(obj.toString());
+        ois.close();
+    }
+}
+```
+
+#### 3.InvalidClassException异常
+
+![Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil](C:\Users\PJM\Documents\Tencent Files\2811172784\FileRecv\MobileFile\Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil.jpg)
+
+```java
+/**反序列化异常：InvalidClassException序列化号冲突异常**/
+/*
+	问题：由于实现了接口Serializable接口，当进行序列化时，会给实体类一个序列号，而当序列化完成时，该序列号也会写入到文件中；反序列化时，会将实体类的序列号和文件中的序列号进行匹对，如果在反序列化时修改了类文件，则会重新编译，另外生成序列号，则会造成文件序列号和类文件的序列号不一致，从而引发InvalidClassException序列化号冲突异常
+	
+	解决：序列化运行时将每个可序列化的类与称为serialVersionUID的版本号相关联，该序列号在反序列化期间用于验证序列化对象的发送者和接收者是否已加载与该序列化兼容的对象的类。 如果接收方加载了一个具有不同于相应发件人类的serialVersionUID的对象的类，则反序列化将导致InvalidClassException 。 一个可序列化的类可以通过声明一个名为"serialVersionUID"的字段来显式地声明它自己的serialVersionUID，该字段必须是静态的，最终的，类型是long ：
+	static final long serialVersionUID = 42L；
+	手动在类文件中添加一个序列号
+*/
+```
+
+#### 4.序列化集合
+
+```java
+/**序列化集合
+ * 当我们想在文件中保存多个对象的时候
+ * 可以把多个对象保存到一个集合中
+ * 对集合进行序列化和反序列化
+ *
+ * 分析：
+ *      1.定义一个存储对象的集合ArrayList
+ *      2.往集合中添加对象
+ *      3.创建序列化流ObjectOutputStream对象
+ *      4.使用ObjectOutputStream对象中的方法writeObject，对集合进行序列化
+ *      5.创建一个反序列化流ObjectInputStream对象
+ *      6.使用ObjectInputStream对象中的方法readObject，对集合进行反序列化
+ *      7.把Object类型转换为ArrayList类型
+ *      8.对集合进行遍历
+ *      9.释放资源
+ * */
+
+/**序列化集合**/
+package com.company.object;
+
+import com.company.model.Person;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CollectionObjectOutputStream {
+    public static void main(String[] args) throws Exception{
+        add();
+    }
+
+    public static void add() throws Exception {
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("h.txt"));
+        Object obj = ois.readObject();
+        ois.close();
+
+        List<Person> people =  (ArrayList) obj;
+        people.add(new Person("狗窝",18));
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("h.txt"));
+        oos.writeObject(people);
+        oos.close();
+    }
+}
+
+/**反序列化集合**/
+package com.company.object;
+
+import com.company.model.Person;
+
+import java.io.FileInputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CollectionObjectInputStream {
+    public static void main(String[] args) throws Exception{
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("h.txt"));
+        Object obj = ois.readObject();
+        ois.close();
+
+        List<Person> people =  (ArrayList) obj;
+        for (Person person : people){
+            System.out.println(person.toString());
+        }
+
+        people.add(new Person("狗窝",18));
+    }
+}
+
+```
+
+### 六、打印流(PrintStream)
+
+```java
+/**打印流：PrintStream
+ * 打印流可以将输出语句输出到文件中去
+ *
+ * java.io.PrintStream 继承自 OutputStream
+ * 继承类OutputStream的共性方法：
+ *    void	close()
+ *    关闭此输出流并释放与此流相关联的任何系统资源。
+ *    void	flush()
+ *    刷新此输出流并强制任何缓冲的输出字节被写出。
+ *    void	write(byte[] b)
+ *    将 b.length字节从指定的字节数组写入此输出流。
+ *    void	write(byte[] b, int off, int len)
+ *    从指定的字节数组写入 len个字节，从偏移 off开始输出到此输出流。
+ *    abstract void	write(int b)
+ *    将指定的字节写入此输出流。
+ *
+ *
+ * 构造方法：
+ *  PrintStream(OutputStream out)
+ *      创建一个新的打印流。
+ *  PrintStream(String fileName)
+ *      使用指定的文件名创建新的打印流，无需自动换行。
+ *  PrintStream(String fileName, String csn)
+ *      创建一个新的打印流，不需要自动换行，具有指定的文件名和字符集。
+ *
+ *  参数：
+ *      OutputStream out：字节输出流
+ *      String fileName:输出流的目的文件地址
+ *      String csn：指定字符集
+ *
+ *  特有方法：
+ *      print(任意数据类型)
+ *      println(任意数据类型)
+ *
+ *
+ *  注意：当使用共性方法和特有方法时会有差异
+ *      使用共性方法时，输出到文件时会去查找编码表 97---》a
+ *      使用特有方法则不会查找编码表  97----》97
+ * */
+
+import java.io.PrintStream;
+
+public class FilePrintStream {
+
+    public static void main(String[] args) throws Exception{
+        PrintStream ps = new PrintStream(new FileOutputStream("i.txt"));
+        ps.println("打印流");
+        ps.write(97);
+    }
+}
+
+
+/**
+ * 改变输出语句的目的地(打印流的流向)
+ * 输出语句，默认在控制台输出
+ * 使用System.setOut方法改变输出语句的目的地为参数中传递的打印流目的地
+ *      setOut(PrintStream out)
+ *          重新分配“标准”输出流。
+ * */
+package com.company.print;
+
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
+public class FilePrintStream {
+
+    public static void main(String[] args) throws Exception{
+        System.out.println("我在控制台打印");
+
+        PrintStream ps = new PrintStream(new FileOutputStream("j.txt"));
+        System.setOut(ps);
+        System.out.println("我在文件中打印");
     }
 }
 ```
