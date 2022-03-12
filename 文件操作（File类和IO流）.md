@@ -535,3 +535,516 @@ public class MyFileWriter {
 
 ```
 
+#### 5.Properties类
+
+```java
+/**Properties**/
+/**	java.util.Properties集合 extends Hashtable<k,v> implements Map<k,v>
+ *	Properties类表示一组持久的属性。 Properties可以保存到流中或从流中加载。 属性列表中的每个键及其对应的值都是一个字符串。
+ *	Properties是唯一一个与IO流相结合的集合：
+ *		可以使用Properties集合中的方法store，把集合中的临时数据，持久化写入到硬盘中存取
+ *		可以使用Properties集合中的方法load，把硬盘中保存的文件（键对值），读取到集合中使用
+ *	属性列表中每个键所对的值都是字符串。
+ *		Properties集合是一个双列集合，key和value都是字符串。
+ */
+
+/**Properties操作属性列表的特有方法：
+ * 	setProperty(String key, String value)
+ * 		调用Hashtable的方法 put 。
+ * 	getProperty(String key)
+ * 		使用此属性列表中指定的键搜索属性。
+ * 	getProperty(String key, String defaultValue)
+ * 		使用此属性列表中指定的键搜索属性，通过key找到value值，相当于Map集合中的get方法。
+ * 	stringPropertyNames()
+ * 		返回此属性列表中的一组键，其中键及其对应的值为字符串，包括默认属性列表中的不同键，如果尚未从主属性列表中找到相同名称的键,返回一个包含所有键的Set列表。
+ * 		相当于Map集合中的keyset方法	
+ * */
+
+@Test
+void testProperties() throws Exception {
+    Properties prop = new Properties();
+    Properties prop = new Properties();
+    prop.setProperty("dataOne","张三");
+    prop.setProperty("dataTwo","李四");
+    prop.setProperty("dataThree","王五");
+    Set<String> sets = prop.stringPropertyNames();
+    for (String set:sets){
+        System.out.println(set);
+    }
+}
+```
+
+#### 6.持久化Properties集合
+
+```Java
+/**store方法**/
+/**持久化Properties：使用Properties集合中的方法store将Properties集合从内存中存入到硬盘中：
+ * 	store(OutputStream out, String comments)
+ * 		将此属性列表（键和元素对）写入此 Properties表中，以适合于使用 load(InputStream)方法加载到 Properties表中的格式输出流。
+ * 	store(Writer writer, String comments)
+ * 		将此属性列表（键和元素对）写入此 Properties表中，以适合使用 load(Reader)方法的格式输出到输出字符流。
+ *
+ * 	OutputStream out：以字节流写入到硬盘中，不能输入中文
+ * 	Writer writer：以字符流写入到硬盘中，可以输入中文
+ * 	comments：注释。
+ *
+ * 	使用步骤：
+ * 		1.创建Properties集合对象，添加数据
+ * 		2.创建字符输出流/字节输出流对象
+ * 		3.使用Properties集合中的store方法，持久化写入到硬盘中存储
+ * 		4.释放资源
+ * */
+@Test
+void addProperties() throws Exception{
+    Properties prop = new Properties();
+    prop.setProperty("dataOne","张三");
+    prop.setProperty("dataTwo","李四");
+    prop.setProperty("dataThree","王五");
+
+    FileWriter fis = new FileWriter("src/main/resources/application.properties",true);
+
+    prop.store(fis,"saveData");
+    fis.close();
+}
+```
+
+#### 7.读取为Properties集合
+
+```java
+/**读取为Properties集合
+ * 	可以使用Properties集合中的方法load，把硬盘中保存的文件（键对值），读取到集合中使用
+ * 	load(InputStream inStream)
+ * 		从输入字节流读取属性列表（键和元素对）。
+ *	load(Reader reader)
+ * 		以简单的线性格式从输入字符流读取属性列表（关键字和元素对）。
+ *
+ * 参数：
+ * 		InputStream：以字节流读入到Properties结合对象中，不能读取含有中文的键值对
+ * 		Reader reader：以字符流读入到Properties集合对象中，能读取含有中文的键值对
+ *
+ * 	使用步骤：
+ * 		1.创建Properties集合对象
+ * 		2.创建字符输入流/字节输入流对象
+ * 		3.使用Properties集合中的load方法，读取保存键值对的文件
+ * */
+@Test
+void testProperties() throws Exception {
+    Properties prop = new Properties();
+    FileReader reader = new FileReader("src/main/resources/application.properties");
+    prop.load(reader);
+    Set<String> sets = prop.stringPropertyNames();
+    for (String set:sets){
+        System.out.println(set + "=" + prop.getProperty(set));
+    }
+}
+```
+
+### 三、缓冲流
+
+```java
+//缓冲流在基本流的基础上创建的
+```
+
+#### 1.字节缓冲输入流(BufferedOutputStream)
+
+```java
+/**字节缓冲输出流：BufferedOutputStream
+ * 给基本的字节输出流增加了一个缓冲区(数组)提高了基本的字节输出流的读取效率
+ * BufferedOutputStream(new FileOutputStream())
+ * 
+ * java.io.BufferedOutputStream extends java.io.FilterOutputStream implements java.io.OutputStream
+ *
+ * 继承自父类的共性方法：
+ * 	void close()
+ * 		关闭此输出流并释放与此流相关联的任何系统资源。
+ * 	void flush()
+ * 		刷新此输出流并强制任何缓冲的输出字节被写出。
+ * 	void write(byte[] b)
+ * 		将 b.length字节从指定的字节数组写入此输出流。
+ *	void write(byte[] b, int off, int len)
+ * 		从指定的字节数组写入 len个字节，从偏移 off开始输出到此输出流。
+ * 	abstract void write(int b)
+ * 		将指定的字节写入此输出流。
+ * */
+
+/**构造方法：
+ *	BufferedOutputStream(OutputStream out)
+ * 		创建一个新的缓冲输出流，以将数据写入指定的底层输出流。
+ * 	BufferedOutputStream(OutputStream out, int size)
+ * 		创建一个新的缓冲输出流，以便以指定的缓冲区大小将数据写入指定的底层输出流。
+ *
+ * 	参数：
+ * 		OutputStream out：字节输出流
+ *		int size：指定缓冲流内部缓冲区的大小，不指定默认：1024
+ * */
+
+package com.company.Buffered;
+
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+
+public class BufferedFileOutputStream {
+    public static void main(String[] args) throws Exception{
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("a.txt"));
+        bos.write("我嫩爹".getBytes());
+        bos.close();
+    }
+}
+
+```
+
+#### 2.字节缓冲输出流(BufferedInputStream)
+
+```java
+/**字节缓冲输出流：BufferedInputStream**/
+/**字节缓冲输出流：BufferedInputStream
+ * 给基本的字节输入流增加了一个缓冲区(数组)提高了基本的字节输入流的读取效率
+ * BufferedOutputStream(new FileOutputStream())
+ * 
+ * java.io.BufferedOutputStream extends java.io.FileInputStream implements java.io.InputStream
+ *
+ * 继承自父类的共性方法：
+*	close()
+*		关闭此输入流并释放与流相关联的任何系统资源。
+*	read()
+*		从输入流读取数据的下一个字节。
+*	read(byte[] b)
+*		从输入流读取一些字节数，并将它们存储到缓冲区 b 。
+* */
+
+/**构造方法：
+ *	BufferedInputStream(InputStream in)
+ * 		创建一个 BufferedInputStream并保存其参数，输入流 in ，供以后使用。
+ * 	BufferedInputStream(InputStream in, int size)
+ * 		创建 BufferedInputStream具有指定缓冲区大小，并保存其参数，输入流 in ，供以后使用。
+ *
+ * 	参数：
+ *  	OutputStream out：字节输出流
+ *  	int size：指定字节输入缓冲流内部的缓冲区大小，不指定默认
+ * */
+package com.company.Buffered;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.util.Arrays;
+
+public class MyBufferedInputStream {
+    public static void main(String[] args) throws Exception{
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("a.txt"));
+        byte [] bytes = new byte[20];
+        int len = bis.read(bytes);
+        System.out.println(new String(bytes,0,len));
+        System.out.println(len);
+        bis.close();
+    }
+}
+
+```
+
+```java
+/**同一文件复制**/
+//普通流：复制文件共耗时：1178毫秒
+//缓冲流：复制文件所消耗的时间：272毫秒
+//程序：普通流
+package com.company.File;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+public class FileCopy {
+    public static void main(String[] args) throws Exception{
+        long s = System.currentTimeMillis();
+        FileInputStream fis = new FileInputStream("jdk.zip");
+
+        FileOutputStream fos = new FileOutputStream("new.zip");
+
+        Integer len;
+        byte [] bytes = new byte[1024];
+        while((len = fis.read(bytes)) != -1){
+            fos.write(bytes,0,len);
+        }
+        fos.close();
+        fis.close();
+        long e = System.currentTimeMillis();
+        System.out.println(e);
+        System.out.println("复制文件共耗时："+(e-s)+"毫秒");
+    }
+}
+
+//缓冲流：
+package com.company.Buffered;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+public class BufferedCopy {
+
+    public static void main(String[] args) throws Exception{
+        long s = System.currentTimeMillis();
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("jdk.zip"));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("new.zip"));
+        int len = 0;
+        byte [] bytes = new byte[1024];
+        while ((len = bis.read(bytes)) != -1){
+            bos.write(bytes,0,len);
+        }
+        bis.close();
+        bos.close();
+        long e = System.currentTimeMillis();
+        System.out.println("复制文件所消耗的时间："+(e-s)+"毫秒");
+    }
+}
+
+```
+
+#### 3.字符缓冲输入流(BufferedReader)
+
+```java
+/**字符缓冲输入流：BufferedReader**/
+/**字符缓冲输入流：BufferedReader
+ * 给基本的字符输入流增加了一个缓冲区(数组)提高了基本的字符输入流的读取效率
+ * BufferedReader(new FileReader())
+ * 
+ * java.io.BufferedReader extends java.io.FileReader implements java.io.Reader
+ *
+ * 继承自父类的共性方法：
+ *方法：
+ *	read()
+ *   	读一个字符
+ *   read(char[] cbuf)
+ *		将字符读入数组。
+ *	read(char[] cbuf, int off, int len)
+ *		将字符读入数组的一部分。
+ *	close()
+ *		关闭流并释放与之相关联的任何系统资源。
+ */
+
+/**构造方法：
+ *  BufferedReader(Reader in)
+ *      创建使用默认大小的输入缓冲区的缓冲字符输入流。
+ *  BufferedReader(Reader in, int sz)
+ *      创建使用指定大小的输入缓冲区的缓冲字符输入流。
+ *
+ *  参数：
+ *      Writer out：字符输出流
+ *      int size：用于指定字符缓冲输出流内部的缓冲区大小，不指定默认
+ *
+ *  特有方法：
+ *      readLine()
+ *          读一行文字,如果达到流的末尾返回null。
+ * */
+package com.company.Buffered;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+public class BufferedFileReader {
+    public static void main(String[] args) throws Exception{
+        BufferedReader reader = new BufferedReader(new FileReader("d.txt"));
+        char [] chars = new char[1024];
+        String line = "";
+//        System.out.println(new String(chars,0,len));
+//        System.out.println(len);
+//        System.out.println(line);
+        while ((line = reader.readLine()) != null){
+            System.out.println(line);
+        }
+        reader.close();
+    }
+}
+
+```
+
+
+
+#### 4.字符缓冲输出流(BufferedWriter)
+
+```java
+/**字符缓冲输出流：BufferedWriter**/
+/**字符缓冲输出流：BufferedWriter
+ * 给基本的字符输出流增加了一个缓冲区(数组)提高了基本的字符输出流的读取效率
+ * BufferedWriter(new FileWriter())
+ * 
+ * java.io.BufferedWriter extends java.io.FileWriter implements java.io.Writer
+ *
+ * 继承自父类的共性方法：
+ *方法：
+ *	close()
+ * 		关闭流，先刷新。
+ *	write(int c)
+ *		写一个字符
+ *	write(char[] cbuf, int off, int len)
+ *		写入字符数组的一部分。
+ *	write(char[] cbuf)
+ *		写入一个字符数组。
+ *	write(String str)
+ *		写一个字符串
+ *	write(String str, int off, int len)
+ *		写一个字符串的一部分。
+ *	flush()
+ *		刷新流。
+ */
+
+/**构造方法：
+ *  BufferedWriter(Writer out)
+ *      创建使用默认大小的输出缓冲区的缓冲字符输出流。
+ *  BufferedWriter(Writer out, int sz)
+ *      创建一个新的缓冲字符输出流，使用给定大小的输出缓冲区。
+ *
+ *  参数：
+ *      Writer out：字符输出流
+ *      int size：用于指定字符缓冲输出流内部的缓冲区大小，不指定默认
+ *
+ *  特有方法：
+ *      newLine()
+ *          写一行行分隔符，会根据不同的操作系统，获取不同的换行符。
+ */
+
+package com.company.Buffered;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+
+public class BufferedFileWriter {
+    public static void main(String[] args) throws Exception{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("d.txt"));
+        String s = "我嫩爹";
+        writer.write(s);
+        writer.close();
+    }
+}
+
+```
+
+### 四、转换流
+
+#### 1.字符编码和字符集
+
+```java
+/**字符编码：就是一套自然语言的字符与二进制数之间的对应规则
+ *  编码：按照某种规则将字符存储到计算机中，称为编码
+ *  解码：将计算机中的二进制按照某种规则解析显示出来，称为解码
+ *  编码表：生活中文字和计算机中二进制的对应规则
+ *
+ *  字符集：也叫编码表
+ * */
+
+
+```
+
+#### 2.编码引起的问题
+
+```java
+/**编码引起的问题
+ *  当使用FileReader字符流读取文件时，如果文件是IDE的默认编码方式不会有问题，
+ *  而当读取的文件的编码方式与IDE的编码方式不同时，读取文件就会有乱码问题
+ *
+ *  字节的读取是没有编码问题的，主要是字符的读取
+ * */
+
+
+```
+
+#### 3.转换流
+
+##### 1.InputStreamReader
+
+```java
+/*
+阅读字符文件的便利课。 该类的构造函数假定默认字符编码和默认字节缓冲区大小是适当的。 要自己指定这些值，请在FileInputStream上构造一个InputStreamReader。
+注意：在FileReader的底层源码实际用的还是FileInputStream来读取文件，FileInputStream将文件以字节的方式读出后，再通过FileReader将字节转换为字符
+*/
+
+/**InputStreamReader
+ *  InputStreamReader是字符的桥梁流以字节流：向其写入的字符编码成使用指定的字节charset 。 它使用的字符集可以由名称指定，也可以被明确指定，或者可以接受平台的默认字符集。
+ *  可以指定编码表，也就是解码的方式
+ *
+ * java.io.InputStreamReader 是 Reader的子类 implements java.io.Reader
+ * 可以使用Reader的共性方法：
+ * 方法：
+ *       read()
+ *           读一个字符
+ *       read(char[] cbuf)
+ *           将字符读入数组。
+ *       read(char[] cbuf, int off, int len)
+ *           将字符读入数组的一部分。
+ *       close()
+ *           关闭流并释放与之相关联的任何系统资源。
+ *
+ *  构造方法:
+ *      InputStreamReader(InputStream in)
+ *			创建一个使用默认字符集的InputStreamReader。
+ *      InputStreamReader(InputStream in, String charsetName)
+ *			创建一个使用命名字符集的InputStreamReader。
+ * */
+package com.company.transform;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
+public class Transform {
+    public static void main(String[] args) throws Exception{
+
+        char [] chars = new char[1024];
+        InputStreamReader isr = new InputStreamReader(new FileInputStream("a.txt"),"GBK");
+        int len = isr.read(chars);
+        System.out.println(new String(chars,0,len));
+
+
+//        OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream("a.txt"),"GB2312");
+//        osw.write("我嫩爹");
+//        osw.close();
+    }
+}
+```
+
+##### 2.OutputStreamWriter
+
+```java
+/**OutputStreamWriter
+ *  OutputStreamWriter是字符的桥梁流以字节流：向其写入的字符编码成使用指定的字节charset 。 它使用的字符集可以由名称指定，也可以被明确指定，或者可以接受平台的默认字符集。
+ *  可以指定编码表，也就是编码的方式
+ *
+ * java.io.OutputStreamWriter 是 Writer的子类 implements java.io.Writer
+ * 可以使用Writer的共性方法：
+ * 方法：
+ *       close()
+ *		关闭流，先刷新。
+ *	write(int c)
+ *		写一个字符
+ *	write(char[] cbuf, int off, int len)
+ *		写入字符数组的一部分。
+ *	write(char[] cbuf)
+ *		写入一个字符数组。
+ *	write(String str)
+ *		写一个字符串
+ *	write(String str, int off, int len)
+ *		写一个字符串的一部分。
+ *	flush()
+ *		刷新流。
+ *
+ *  构造方法:
+ *      OutputStreamWriter(OutputStream out)
+ *          创建一个使用默认字符编码的OutputStreamWriter。
+ *      OutputStreamWriter(OutputStream out, String charsetName)
+ *          创建一个使用命名字符集的OutputStreamWriter。
+ * */
+
+package com.company.transform;
+
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+
+public class Transform {
+    public static void main(String[] args) throws Exception{
+        OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream("a.txt"),"GB2312");
+        osw.write("我嫩爹");
+        osw.close();
+    }
+}
+```
+
