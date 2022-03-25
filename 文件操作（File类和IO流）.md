@@ -1175,7 +1175,7 @@ public class FileObjectInputStream {
 
 #### 3.InvalidClassException异常
 
-![Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil](hn-bkt-clouddn-com-idvcz9d.www.qiniudns.com/img/Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil.jpg)
+![Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil](http://r9adeaai2.hn-bkt.clouddn.com/img/Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil.jpg)
 
 ```java
 /**反序列化异常：InvalidClassException序列化号冲突异常**/
