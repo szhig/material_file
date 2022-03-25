@@ -1175,7 +1175,7 @@ public class FileObjectInputStream {
 
 #### 3.InvalidClassException异常
 
-![Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil](C:\Users\PJM\Documents\Tencent Files\2811172784\FileRecv\MobileFile\Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil.jpg)
+![Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil](hn-bkt-clouddn-com-idvcz9d.www.qiniudns.com/img/Screenshot_2022-03-12-16-20-13-613_tv.danmaku.bil.jpg)
 
 ```java
 /**反序列化异常：InvalidClassException序列化号冲突异常**/
@@ -1339,6 +1339,94 @@ public class FilePrintStream {
         PrintStream ps = new PrintStream(new FileOutputStream("j.txt"));
         System.setOut(ps);
         System.out.println("我在文件中打印");
+    }
+}
+```
+
+### 七、前后端文件上传
+
+```java
+package com.example.smartcity.utils;
+
+import org.apache.commons.codec.binary.Base64;
+
+import java.io.*;
+import java.util.Random;
+
+public class FileRename {
+    //文件命名
+    public static String rename(String data){
+        String fileName = "upload" + System.currentTimeMillis() + new Random().nextInt(99999);
+        String suffix = data.split(":")[1].split(";")[0];
+        if ( suffix.equals("image/png") ){
+            fileName += ".png";
+        } else if(suffix.equals("image/jpeg")) {
+            fileName += ".jpg";
+        } else if(suffix.equals("application/octet-stream")){
+            fileName += ".rar";
+        } else if (suffix.equals("application/zip")){
+            fileName += ".zip";
+        } else if(suffix.equals("application/msword")){
+            fileName += ".doc";
+        }
+        return suffix;
+    }
+
+    //文件转换输出
+    public static void dataOut(String data,String filename){
+        File file = new File(filename);
+        if(file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        OutputStream os = null;
+        try {
+            os = new FileOutputStream(file);
+            os.write(Base64.decodeBase64(data));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+}
+
+//前端将文件转为base64格式的字符串
+//后端将base64字符串以base64的格式转为字节数组，再将字节数组输出
+```
+
+```js
+var send = (data) => {
+    var xhr = new XMLHttpRequest()
+    xhr.open('post','http://192.168.1.6:8081/test/api/test/file')
+    //方式一
+    xhr.setRequestHeader('content-Type','application/json')
+    xhr.send(JSON.stringify({
+        bytes:data
+    }))
+    xhr.onload = (data) => {
+        console.log(data);
+        console.log(JSON.parse(xhr.responseText))
+    }
+}
+
+
+var file = document.querySelector('.upload')		//获取文件输入框
+file.onchange = (e) => {							
+    var file = e.target.files[0]					//获取文件
+    var fileReader = new FileReader()				//文件读取流
+    fileReader.readAsDataURL(file)					//将文件以base64的格式读出
+    fileReader.onload = () => {						//开始读取文件
+        send(fileReader.result)
+        console.log(byte += fileReader.result)
     }
 }
 ```
