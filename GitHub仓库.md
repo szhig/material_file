@@ -32,6 +32,10 @@
 
 4.查看远程仓库：git remote -v
 
+5.配置邮箱和用户名：
+    git config --global user.email "email"
+    git config --global user.nem "name"
+
 
 
 #### 三、问题
